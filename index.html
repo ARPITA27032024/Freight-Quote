@@ -1,0 +1,2585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Freight Quote Generation System | Business Portal</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- html2pdf.js for PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       Freight Quote System - Unified Business Portal Stylesheet
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+      line-height: 1.5;
+      padding-bottom: 60px;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #08162d;
+      color: #ffffff;
+      min-height: 70px;
+      padding: 10px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #ffffff;
+    }
+
+    .brand i {
+      color: #ff9800;
+      width: 28px;
+      height: 28px;
+    }
+
+    .brand h2 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+    }
+
+    .brand span {
+      color: #ff9800;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn:hover, .nav-tab-btn.active {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-tab-btn.active {
+      color: #ff9800;
+    }
+
+    /* Top Breadcrumb & Actions Bar */
+    .top-bar {
+      max-width: 1320px;
+      margin: 25px auto 20px;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .bc-path {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-secondary-light {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-secondary-light:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    .btn-orange-primary {
+      background: #e65100;
+      color: #ffffff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(230, 81, 0, 0.25);
+      white-space: nowrap;
+    }
+
+    .btn-orange-primary:hover {
+      background: #f57c00;
+      transform: translateY(-1px);
+    }
+
+    /* Main Container Grid for Form View */
+    .main-grid {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .right-sidebar-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: sticky;
+      top: 90px;
+    }
+
+    /* Section Card */
+    .section-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .sec-num {
+      background: #16a34a;
+      color: #ffffff;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .sec-title h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .sec-title p {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* Form Layouts */
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    label span.req {
+      color: #dc2626;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #0f172a;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: #ff9800;
+      box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.15);
+    }
+
+    .subtext {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* Badges */
+    .badge-new {
+      background: #e65100;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-left: 6px;
+    }
+
+    /* Mode Pill Selector */
+    .mode-pills {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .mode-pill {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 30px;
+      padding: 10px 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-pill.active {
+      background: #08162d;
+      color: #ffffff;
+      border-color: #08162d;
+      box-shadow: 0 4px 12px rgba(8, 22, 45, 0.2);
+    }
+
+    .mode-pill i {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Dynamic Alert Boxes */
+    .alert-banner {
+      background: #fff7ed;
+      border-left: 4px solid #ea580c;
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+    }
+
+    .alert-banner-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #c2410c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    /* Item Dotted Card */
+    .item-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .item-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .item-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: #94a3b8;
+      letter-spacing: 1px;
+    }
+
+    .btn-remove {
+      background: transparent;
+      border: 1px solid #fee2e2;
+      color: #dc2626;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-add-item {
+      width: 100%;
+      background: #ffffff;
+      border: 2px dashed #cbd5e1;
+      color: #0284c7;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-add-item:hover {
+      border-color: #0284c7;
+      background: #f0f9ff;
+    }
+
+    /* Checkboxes Row */
+    .checkbox-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .custom-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .custom-check input {
+      accent-color: #ff9800;
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Sticky Live Estimate Card */
+    .live-card {
+      background: #08162d;
+      color: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .live-card-header {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .charge-basis-box {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+
+    .cb-label { font-size: 11px; color: #94a3b8; display: block; }
+    .cb-val { font-size: 13px; font-weight: 700; color: #ffffff; display: block; margin-top: 2px; }
+
+    .summary-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .s-row { display: flex; justify-content: space-between; font-size: 13px; }
+    .s-row span { color: #94a3b8; }
+    .s-row strong { color: #ffffff; font-weight: 700; }
+
+    .est-total-label { font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #94a3b8; text-transform: uppercase; }
+    .est-total-price { font-size: 32px; font-weight: 800; color: #ffffff; margin: 4px 0 10px; }
+
+    .rate-badge {
+      display: inline-block;
+      background: rgba(255, 152, 0, 0.15);
+      color: #ff9800;
+      border: 1px solid rgba(255, 152, 0, 0.4);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .btn-generate {
+      width: 100%;
+      background: #e65100;
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(230, 81, 0, 0.3);
+    }
+
+    .btn-generate:hover {
+      background: #f57c00;
+      transform: translateY(-1px);
+    }
+
+    .disclaimer { font-size: 11px; color: #64748b; margin-top: 12px; line-height: 1.4; text-align: center; }
+
+    /* Side Widget Cards */
+    .side-widget-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    .side-widget-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 14px;
+    }
+
+    .chart-container-wrap { position: relative; height: 150px; width: 100%; }
+    .map-container-wrap { height: 180px; width: 100%; border-radius: 10px; overflow: hidden; }
+
+    .btn-dark-export {
+      width: 100%;
+      background: #08162d;
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(8, 22, 45, 0.2);
+    }
+
+    .btn-dark-export:hover { background: #1e293b; }
+
+    /* ==========================================================================
+       QUOTATIONS DASHBOARD SECTION
+       ========================================================================== */
+    .dashboard-view {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .kpi-title { font-size: 13px; color: #64748b; font-weight: 600; margin-bottom: 8px; }
+    .kpi-value { font-size: 32px; font-weight: 800; color: #0f172a; line-height: 1; }
+    .kpi-sub { font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .kpi-sub.green { color: #16a34a; }
+    .kpi-sub.red { color: #dc2626; }
+    .kpi-sub.slate { color: #64748b; }
+
+    .filter-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      margin-bottom: 24px;
+    }
+
+    .filter-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .search-input-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      width: 16px;
+      height: 16px;
+    }
+
+    .search-input-wrap input { padding-left: 36px; }
+
+    .results-count {
+      margin-left: auto;
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .table-container { overflow-x: auto; }
+
+    .dash-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    .dash-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 14px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    .dash-table td {
+      padding: 16px 14px;
+      font-size: 13px;
+      color: #1e293b;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .q-no { font-weight: 800; color: #0f172a; }
+    .q-cust-name { font-weight: 700; color: #0f172a; display: block; }
+    .q-cust-city { font-size: 11px; color: #64748b; display: block; }
+    .lane-code { font-weight: 700; color: #0f172a; display: block; }
+    .lane-sub { font-size: 11px; color: #64748b; display: block; }
+
+    .mode-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .mode-badge.ocean-fcl { background: #e0f2fe; color: #0369a1; }
+    .mode-badge.air-freight { background: #ffedd5; color: #c2410c; }
+    .mode-badge.ocean-lcl { background: #f3e8ff; color: #7e22ce; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-badge.draft { background: #f1f5f9; color: #475569; }
+    .status-badge.issued { background: #dcfce7; color: #15803d; }
+    .status-badge.booked { background: #08162d; color: #ff9800; }
+    .status-badge.norouting { background: #fef3c7; color: #b45309; }
+
+    .btn-open-quote {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 4px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+    }
+
+    .tf-info { font-size: 12px; color: #64748b; font-weight: 600; }
+    .pagination-btns { display: flex; gap: 6px; }
+
+    .btn-page {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       USER MANAGEMENT ADMIN SECTION (INTEGRATED FROM PROVIDED CODE)
+       ========================================================================== */
+    .admin-page {
+      min-height: calc(100vh - 70px);
+      padding: 40px 20px;
+      background: linear-gradient(160deg, #03102b 0%, #08162d 45%, #0c2140 100%);
+      color: white;
+      display: flex;
+      justify-content: center;
+    }
+
+    .admin-panel {
+      width: 100%;
+      max-width: 1180px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 40px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .admin-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .admin-back-link, .admin-nav-link {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .admin-back-link:hover, .admin-nav-link:hover { color: #ff9800; }
+
+    .admin-panel h1 { margin-top: 18px; font-size: 28px; font-weight: 800; }
+    .admin-subtitle { color: rgba(255, 255, 255, 0.6); margin-bottom: 24px; font-size: 14px; }
+
+    .admin-muted { color: rgba(255, 255, 255, 0.55); }
+    .admin-error { color: #ff6b6b; font-weight: 600; }
+    .admin-success { color: #4caf50; font-weight: 600; }
+
+    .admin-users-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 24px 0;
+      align-items: center;
+    }
+
+    .admin-users-filters input[type="text"] { flex: 1; min-width: 200px; }
+
+    .admin-users-filters input,
+    .admin-users-filters select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .admin-users-filters input:focus,
+    .admin-users-filters select:focus {
+      border-color: #ff9800;
+      box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.15);
+    }
+
+    .admin-filter-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      color: white;
+      padding: 10px 18px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .admin-filter-btn:hover { background: rgba(255, 255, 255, 0.14); }
+
+    .admin-save-btn {
+      background: #ff9800;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      font-size: 15.5px;
+      font-weight: 700;
+      padding: 14px 28px;
+      transition: 0.25s;
+    }
+
+    .admin-save-btn:hover { background: #ffb020; }
+    .admin-add-btn { padding: 10px 18px; font-size: 14px; }
+
+    .admin-create-form {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 26px;
+      display: none;
+    }
+
+    .admin-create-form.open { display: block; }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .admin-field { display: flex; flex-direction: column; gap: 6px; }
+
+    .admin-field span {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .admin-field input, .admin-field select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: white;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .admin-field input:focus, .admin-field select:focus {
+      border-color: #ff9800;
+      box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.15);
+    }
+
+    .admin-users-table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+    }
+
+    .admin-users-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .admin-users-table th {
+      text-align: left;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+
+    .admin-users-table td {
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+    }
+
+    .admin-empty-row { text-align: center; padding: 30px 16px !important; }
+    .admin-row-inactive { opacity: 0.55; }
+
+    .admin-you-tag {
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 12.5px;
+      font-weight: 400;
+    }
+
+    .admin-role-badge, .admin-status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .admin-role-admin { background: rgba(255, 152, 0, 0.15); color: #ffb74d; }
+    .admin-role-business { background: rgba(76, 175, 80, 0.15); color: #81c784; }
+    .admin-role-retail { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.75); }
+
+    .admin-status-active { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
+    .admin-status-inactive { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+
+    .admin-row-actions { display: flex; gap: 14px; white-space: nowrap; }
+
+    .admin-link-btn {
+      background: none;
+      border: none;
+      color: #ff9800;
+      font-weight: 600;
+      font-size: 13.5px;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .admin-link-btn:hover:not(:disabled) { color: #ffb020; text-decoration: underline; }
+    .admin-link-btn:disabled { color: rgba(255, 255, 255, 0.3); cursor: not-allowed; }
+
+    .admin-link-danger { color: #ff6b6b; }
+    .admin-link-danger:hover:not(:disabled) { color: #ff8a8a; }
+
+    .admin-role-select {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 5px 8px;
+      color: white;
+      font-size: 13px;
+    }
+
+    .admin-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 16, 43, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .admin-modal-backdrop.open { display: flex; }
+
+    .admin-modal {
+      background: #0c2140;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .admin-modal h2 { margin-top: 0; font-size: 19px; color: white; }
+    .admin-modal p { color: rgba(255, 255, 255, 0.65); margin-bottom: 22px; }
+
+    .admin-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .admin-danger-btn { background: #dc2626; }
+    .admin-danger-btn:hover { background: #ef4444; }
+
+    .banner { min-height: 22px; margin-bottom: 4px; }
+
+    .hidden { display: none !important; }
+    .text-right { text-align: right; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* MOBILE RESPONSIVE BREAKPOINTS */
+    @media (max-width: 768px) {
+      .navbar { padding: 10px 16px; min-height: auto; }
+      .brand h2 { font-size: 18px; }
+      .brand i { width: 22px; height: 22px; }
+
+      .nav-tabs {
+        width: 100%;
+        justify-content: space-between;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-tab-btn { flex: 1; justify-content: center; padding: 8px 6px; font-size: 11px; }
+
+      .top-bar { flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 16px; margin: 15px auto 15px; }
+      .page-title { font-size: 20px; }
+
+      .action-btns { width: 100%; display: flex; gap: 8px; }
+      .action-btns button { flex: 1; justify-content: center; padding: 8px 10px; }
+
+      .main-grid { grid-template-columns: 1fr; padding: 0 16px; gap: 16px; }
+      .right-sidebar-column { position: static; }
+
+      .section-card { padding: 18px 16px; border-radius: 12px; }
+      .form-row { flex-direction: column; gap: 12px; }
+
+      .mode-pills { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .mode-pill { padding: 8px 10px; font-size: 12px; justify-content: center; }
+
+      .checkbox-row { grid-template-columns: 1fr; }
+      .live-card { padding: 18px 16px; border-radius: 12px; }
+      .est-total-price { font-size: 26px; }
+
+      .dashboard-view { padding: 0 16px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .kpi-card { padding: 14px 12px; }
+      .kpi-value { font-size: 22px; }
+      .kpi-title { font-size: 11px; }
+
+      .filter-card { padding: 16px 14px; border-radius: 12px; }
+      .filter-controls { flex-direction: column; align-items: stretch; }
+      .filter-controls select, .filter-controls button { width: 100% !important; }
+      .search-input-wrap { width: 100%; }
+
+      .admin-panel { padding: 20px 16px; border-radius: 14px; }
+      .admin-users-filters input, .admin-users-filters select, .admin-filter-btn, .admin-add-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR WITH TOP TABS -->
+  <nav class="navbar">
+    <a href="#" class="brand">
+      <i data-lucide="ship"></i>
+      <h2>Freight <span>Quote</span></h2>
+    </a>
+    
+    <div class="nav-tabs">
+      <button class="nav-tab-btn active" id="tabDashBtn">
+        <i data-lucide="layout-dashboard" style="width:16px;"></i> Quotations
+      </button>
+      <button class="nav-tab-btn" id="tabNewEnquiryBtn">
+        <i data-lucide="plus-circle" style="width:16px;"></i> + New Enquiry
+      </button>
+      <button class="nav-tab-btn" id="tabUserMgmtBtn">
+        <i data-lucide="users" style="width:16px;"></i> User Management
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==========================================================================
+       VIEW 1: QUOTATIONS DASHBOARD
+       ========================================================================== -->
+  <div id="dashboardView" class="dashboard-view">
+    <div class="top-bar" style="padding-left:0; padding-right:0;">
+      <div class="breadcrumb">
+        <span class="bc-path">Quotations / Quotations</span>
+        <h1 class="page-title">Quotations</h1>
+      </div>
+      <div class="action-btns">
+        <button class="btn-secondary-light" id="btnExportQuotes">
+          <i data-lucide="download" style="width:14px;"></i> Export
+        </button>
+        <button class="btn-orange-primary" id="btnGoToEnquiry">
+          + New enquiry
+        </button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Quotes this month</div>
+        <div class="kpi-value" id="kpiQuotesCount">248</div>
+        <div class="kpi-sub green">↑ 12% vs last month</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Avg quote turnaround</div>
+        <div class="kpi-value">42s</div>
+        <div class="kpi-sub green">↓ target &lt; 60s</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Routes analysed</div>
+        <div class="kpi-value" id="kpiRoutesCount">1,284</div>
+        <div class="kpi-sub slate">3.2 avg per enquiry</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Lanes with no service</div>
+        <div class="kpi-value">6</div>
+        <div class="kpi-sub red">needs master data</div>
+      </div>
+    </div>
+
+    <div class="filter-card">
+      <div class="filter-controls">
+        <div class="search-input-wrap">
+          <i data-lucide="search"></i>
+          <input type="text" id="dashSearchInput" class="form-input" placeholder="Quote no, customer, lane..." />
+        </div>
+        <select id="filterLane" class="form-select" style="width:auto;">
+          <option value="all">All lanes</option>
+          <option value="INNSA-AEJEA">INNSA → AEJEA</option>
+          <option value="INNSA-NLRTM">INNSA → NLRTM</option>
+          <option value="BOM-DXB">BOM → DXB</option>
+          <option value="INNSA-SGSIN">INNSA → SGSIN</option>
+        </select>
+        <select id="filterMode" class="form-select" style="width:auto;">
+          <option value="all">All modes</option>
+          <option value="ocean_fcl">Ocean FCL</option>
+          <option value="ocean_lcl">Ocean LCL</option>
+          <option value="air">Air Freight</option>
+        </select>
+        <select id="filterStatus" class="form-select" style="width:auto;">
+          <option value="all">All statuses</option>
+          <option value="Booked">Booked / Proceeded</option>
+          <option value="Issued">Issued</option>
+          <option value="Draft">Draft</option>
+          <option value="No routing">No routing</option>
+        </select>
+        <select class="form-select" style="width:auto;">
+          <option>Last 30 days</option>
+          <option>This Month</option>
+          <option>All Time</option>
+        </select>
+        <button class="btn-secondary-light" id="btnClearFilters">Clear</button>
+
+        <span class="results-count" id="dashResultsCount">248 results</span>
+      </div>
+
+      <div class="table-container">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>QUOTE NO</th>
+              <th>CUSTOMER</th>
+              <th>LANE</th>
+              <th>MODE</th>
+              <th>BASIS</th>
+              <th>TRANSIT</th>
+              <th>INDICATIVE TOTAL</th>
+              <th>STATUS</th>
+              <th>CREATED</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="dashTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <span class="tf-info" id="dashPaginationInfo">Showing 1–5 of 248</span>
+        <div class="pagination-btns">
+          <button class="btn-page">&larr; Prev</button>
+          <button class="btn-page">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       VIEW 2: NEW SHIPMENT ENQUIRY FORM
+       ========================================================================== -->
+  <div id="enquiryView" class="hidden">
+    <div class="top-bar">
+      <div class="breadcrumb">
+        <span class="bc-path">Shipments / New</span>
+        <h1 class="page-title">New shipment enquiry</h1>
+      </div>
+      <div class="action-btns">
+        <button class="btn-secondary-light" id="btnSaveDraft">Save draft</button>
+        <button class="btn-secondary-light" id="btnClear">Clear</button>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <!-- LEFT FORM SECTIONS -->
+      <div class="form-sections">
+        <!-- SECTION 1: ROUTE -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="sec-num">1</div>
+            <div class="sec-title">
+              <h3>Route</h3>
+              <p>Where the cargo moves from and to</p>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Origin port / airport <span class="req">*</span></label>
+              <select id="originSelect" class="form-select"></select>
+              <span class="subtext">Searchable — select from master data, not free text</span>
+            </div>
+            <div class="form-group">
+              <label>Destination port / airport <span class="req">*</span></label>
+              <select id="destSelect" class="form-select"></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Pickup address <span style="color:#64748b; font-weight:normal;">(door pickup only)</span></label>
+              <input type="text" id="pickupAddr" class="form-input" placeholder="Street, city, PIN code" />
+            </div>
+            <div class="form-group">
+              <label>Delivery address <span style="color:#64748b; font-weight:normal;">(door delivery only)</span> <span class="badge-new">NEW</span></label>
+              <input type="text" id="deliveryAddr" class="form-input" placeholder="Street, city, postal code" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ready date <span class="req">*</span></label>
+              <input type="date" id="readyDate" class="form-input" />
+              <div id="readyDateError" class="hidden" style="color: #ef4444; font-size: 12px; font-weight: 600; margin-top: 4px;">Ready date cannot be in the past. Please select today or a future date.</div>
+            </div>
+            <div class="form-group">
+              <label>Required delivery date <span style="color:#64748b; font-weight:normal;">(optional)</span></label>
+              <input type="date" id="deliveryDate" class="form-input" placeholder="dd-mm-yyyy" />
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: SERVICE TYPE -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="sec-num">2</div>
+            <div class="sec-title">
+              <h3>Service type</h3>
+              <p>Mode, load type and commercial terms</p>
+            </div>
+          </div>
+          <label style="margin-bottom:8px; display:block;">Mode <span class="req">*</span></label>
+          <div class="mode-pills">
+            <button class="mode-pill active" data-mode="ocean">
+              <i data-lucide="ship"></i> Ocean Freight
+            </button>
+            <button class="mode-pill" data-mode="air">
+              <i data-lucide="plane"></i> Air Freight
+            </button>
+            <button class="mode-pill" data-mode="ground">
+              <i data-lucide="truck"></i> Ground & Rail
+            </button>
+            <button class="mode-pill" data-mode="express">
+              <i data-lucide="zap"></i> Express Air
+            </button>
+          </div>
+          <div id="oceanDynamicBox" class="alert-banner">
+            <div class="alert-banner-title">SHOWN BECAUSE MODE = OCEAN</div>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="form-group">
+                <label>Load type <span class="req">*</span> <span class="badge-new">NEW</span></label>
+                <select id="loadTypeSelect" class="form-select">
+                  <option value="fcl">FCL — Full container</option>
+                  <option value="lcl">LCL — Consolidated</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Incoterm <span class="req">*</span> <span class="badge-new">NEW</span></label>
+                <select id="incotermSelect" class="form-select">
+                  <option value="FOB">FOB — Free On Board</option>
+                  <option value="EXW">EXW — Ex Works</option>
+                  <option value="CIF">CIF — Cost Insurance Freight</option>
+                  <option value="DDP">DDP — Delivered Duty Paid</option>
+                </select>
+                <span class="subtext">Decides which cost legs belong in the quote</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: SHIPMENT DETAILS -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="sec-num">3</div>
+            <div class="sec-title">
+              <h3>Shipment details</h3>
+              <p>What is being shipped</p>
+            </div>
+          </div>
+          <div id="cargoItemsContainer"></div>
+          <button type="button" class="btn-add-item" id="btnAddItem">
+            <i data-lucide="plus"></i> Add another item
+          </button>
+        </div>
+
+        <!-- SECTION 4: ADDITIONAL DETAILS -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="sec-num">4</div>
+            <div class="sec-title">
+              <h3>Additional details</h3>
+              <p>Value, handling and special requirements</p>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Declared value</label>
+              <input type="number" id="declaredVal" class="form-input" value="2000000" step="50000" />
+            </div>
+            <div class="form-group">
+              <label>Currency <span class="req">*</span> <span class="badge-new">NEW</span></label>
+              <select id="currencySelect" class="form-select">
+                <option value="INR">INR — Indian Rupee</option>
+                <option value="USD">USD — US Dollar</option>
+                <option value="EUR">EUR — Euro</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group mt-3">
+            <label>Special instructions <span style="color:#64748b; font-weight:normal;">(optional)</span></label>
+            <textarea id="specialInst" class="form-textarea" rows="2" placeholder="e.g. call before delivery"></textarea>
+          </div>
+          <div class="checkbox-row">
+            <label class="custom-check"><input type="checkbox" id="chkFragile" /> Fragile goods</label>
+            <label class="custom-check"><input type="checkbox" id="chkHazardous" checked /> Hazardous materials</label>
+            <label class="custom-check"><input type="checkbox" id="chkTemp" /> Temperature controlled</label>
+            <label class="custom-check"><input type="checkbox" id="chkInsurance" checked /> Add cargo insurance</label>
+          </div>
+          <div id="hazmatAlertBox" class="alert-banner mt-3">
+            <div class="alert-banner-title">HAZARDOUS TICKED → THESE THREE BECOME REQUIRED</div>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="form-group">
+                <label>UN number <span class="req">*</span> <span class="badge-new">NEW</span></label>
+                <input type="text" id="unNumber" class="form-input" value="UN1234" />
+              </div>
+              <div class="form-group">
+                <label>IMO class <span class="req">*</span> <span class="badge-new">NEW</span></label>
+                <select id="imoClass" class="form-select">
+                  <option value="3">Class 3 — Flammable Liquid</option>
+                  <option value="2">Class 2 — Gases</option>
+                  <option value="8">Class 8 — Corrosives</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>MSDS <span class="req">*</span> <span class="badge-new">NEW</span></label>
+                <input type="file" id="msdsFile" class="form-input" style="padding:6px;" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 5: CONTACT DETAILS -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="sec-num">5</div>
+            <div class="sec-title">
+              <h3>Contact details</h3>
+              <p>Who receives the quotation</p>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full name <span class="req">*</span></label>
+              <input type="text" id="custName" class="form-input" value="Sharma Textiles" />
+            </div>
+            <div class="form-group">
+              <label>Company / Location <span class="req">*</span></label>
+              <input type="text" id="custCompany" class="form-input" value="Mumbai" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email <span class="req">*</span></label>
+              <input type="email" id="custEmail" class="form-input" value="sharma@textiles.in" />
+            </div>
+            <div class="form-group">
+              <label>Country <span class="req">*</span> <span class="badge-new">NEW</span></label>
+              <select id="custCountry" class="form-select">
+                <option value="India" selected>India</option>
+                <option value="UAE">United Arab Emirates</option>
+                <option value="USA">United States</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR COLUMN -->
+      <div class="right-sidebar-column">
+        <div class="live-card">
+          <div class="live-card-header">LIVE ESTIMATE</div>
+          <div class="charge-basis-box">
+            <span class="cb-label">Charge basis</span>
+            <strong id="chargeBasisText" class="cb-val">Per container — FCL</strong>
+          </div>
+          <div class="summary-rows">
+            <div class="s-row"><span>Containers</span><strong id="summaryContainers">2 × 40HC</strong></div>
+            <div class="s-row"><span>Gross weight</span><strong id="summaryWeight">18,400 kg</strong></div>
+            <div class="s-row"><span>Sea distance</span><strong id="summaryDistance">1,205 nm</strong></div>
+            <div class="s-row"><span>Estimated transit</span><strong id="summaryTransit">6–10 d</strong></div>
+            <div class="s-row"><span>Est. arrival</span><strong id="summaryArrival">22 Aug</strong></div>
+            <div class="s-row"><span>Route options</span><strong id="summaryRoutes">3 found</strong></div>
+          </div>
+          <div class="est-total-label">ESTIMATED TOTAL</div>
+          <div id="liveTotalPrice" class="est-total-price">₹ --</div>
+          <div id="rateBadge" class="rate-badge">🤖 AWAITING FRIGID AGENT DECISION</div>
+
+          <!-- FRIGID AGENT WORKFLOW STATUS TIMELINE -->
+          <div id="agentStatusTimeline" style="display:flex; justify-content:space-between; font-size:10px; font-weight:700; color:#64748b; margin:10px 0; background:#040d1a; padding:8px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+            <span id="stgSubmitted" style="color:#94a3b8;">1. SUBMITTED</span>
+            <span id="stgWithAgent" style="color:#64748b;">2. WITH FRIGID AGENT</span>
+            <span id="stgGenerated" style="color:#64748b;">3. QUOTE GENERATED</span>
+          </div>
+
+          <!-- AGENT PROCESSING LOADING & ERROR CONTAINER -->
+          <div id="agentProcessingBox" class="hidden" style="margin: 12px 0; padding: 12px; background: rgba(255, 152, 0, 0.1); border: 1px solid #ff9800; border-radius: 8px; text-align: center;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #ff9800; font-weight: 700; font-size: 13px;">
+              <span class="agent-spinner" style="display: inline-block; width: 14px; height: 14px; border: 2px solid #ff9800; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></span>
+              <span id="agentStatusText">Waiting for Frigid Agent...</span>
+            </div>
+            <div id="agentStepDetail" style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Your quote request has been submitted and is currently being evaluated by the Frigid Agent.</div>
+          </div>
+          <div id="agentErrorBox" class="hidden" style="margin: 12px 0; padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; text-align: left; color: #ef4444; font-size: 12px; font-weight: 600;">
+            <div id="agentErrorMessage">Validation error. Please verify quote parameters.</div>
+          </div>
+
+          <button id="btnGenerateQuote" class="btn-generate">➔ Generate full quotation</button>
+          <p class="disclaimer">Final rate evaluated by Frigid Agent upon submission. Estimate excludes duties & taxes.</p>
+        </div>
+
+        <!-- FRIGID AGENT DECISION CARD WIDGET -->
+        <div id="frigidAgentCard" class="side-widget-card" style="border: 1px solid #ff9800; background: #0b1a30; padding:16px; border-radius:12px; margin-top:14px;">
+          <h4 class="side-widget-title" style="color:#ff9800; font-size:13px; font-weight:800; margin-bottom:6px;">
+            🤖 Frigid Agent Decision & Margin Control
+          </h4>
+          <div style="font-size:11px; color:#94a3b8; margin-bottom:12px; line-height:1.4;">
+            Frigid Agent evaluates base estimation, applies business margin, and authorizes final quote for Retailer.
+          </div>
+          <div class="form-group" style="margin-bottom:10px;">
+            <label style="color:#cbd5e1; font-size:11px; font-weight:700; display:block; margin-bottom:4px;">Frigid Agent Margin (%)</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="number" id="frigidMarginInput" class="form-input" value="12.0" step="0.5" min="0" max="50" style="padding:6px 10px; background:#1e293b; color:#fff; border:1px solid #334155; font-weight:700;" />
+              <span style="color:#ff9800; font-weight:800; font-size:14px;">%</span>
+            </div>
+          </div>
+          <div style="font-size:11px; color:#94a3b8; display:flex; justify-content:space-between; margin-top:8px;">
+            <span>Base Est. Cost:</span><strong id="frigidBaseCostText" style="color:#fff;">₹ --</strong>
+          </div>
+          <div style="font-size:11px; color:#94a3b8; display:flex; justify-content:space-between; margin-top:4px;">
+            <span>Applied Margin:</span><strong id="frigidMarginValText" style="color:#ff9800;">₹ --</strong>
+          </div>
+          <div style="font-size:12px; font-weight:800; color:#fff; display:flex; justify-content:space-between; margin-top:8px; border-top:1px solid #334155; padding-top:6px;">
+            <span>Final Quote Amount:</span><strong id="frigidFinalValText" style="color:#10b981;">₹ --</strong>
+          </div>
+        </div>
+
+        <div class="side-widget-card">
+          <h4 class="side-widget-title">Cost Distribution</h4>
+          <div class="chart-container-wrap">
+            <canvas id="sideCostChart"></canvas>
+          </div>
+        </div>
+
+        <div class="side-widget-card">
+          <h4 class="side-widget-title">Shipping Route Visualizer</h4>
+          <div id="sideRouteMap" class="map-container-wrap"></div>
+        </div>
+
+        <button id="btnExportPDFSide" class="btn-dark-export">
+          <i data-lucide="file-text" style="width:18px;"></i> Export PDF Quote (₹)
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       VIEW 3: USER MANAGEMENT ADMIN PANEL (INTEGRATED CODE)
+       ========================================================================== -->
+  <div id="userMgmtView" class="admin-page hidden">
+    <div class="admin-panel">
+      <div class="admin-top-row">
+        <a href="#" class="admin-back-link" id="adminBackToDash">&larr; Back to dashboard</a>
+        <a href="#" class="admin-nav-link" id="adminRateConfig">Rate Configuration &rarr;</a>
+      </div>
+
+      <h1>User Management</h1>
+      <p class="admin-subtitle">
+        Manage admin, business, and retail accounts — add new admins, change roles, and deactivate accounts.
+      </p>
+
+      <div class="banner">
+        <p class="admin-success" id="successMsg" style="display:none;"></p>
+        <p class="admin-error" id="errorMsg" style="display:none;"></p>
+      </div>
+
+      <div class="admin-users-filters">
+        <input type="text" id="searchInput" placeholder="Search by name or email">
+        <select id="roleFilter">
+          <option value="">All roles</option>
+          <option value="admin">Admin</option>
+          <option value="business">Business</option>
+          <option value="retail">Retail</option>
+        </select>
+        <select id="statusFilter">
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <button class="admin-filter-btn" id="searchBtn">Search</button>
+        <button class="admin-save-btn admin-add-btn" id="toggleCreateBtn">+ Add User</button>
+      </div>
+
+      <form class="admin-create-form" id="createForm">
+        <div class="admin-grid">
+          <label class="admin-field">
+            <span>Full name</span>
+            <input type="text" id="newFullName" required>
+          </label>
+          <label class="admin-field">
+            <span>Email</span>
+            <input type="email" id="newEmail" required>
+          </label>
+          <label class="admin-field">
+            <span>Temporary password</span>
+            <input type="password" id="newPassword" minlength="8" required>
+          </label>
+          <label class="admin-field">
+            <span>Role</span>
+            <select id="newRole">
+              <option value="admin">Admin</option>
+              <option value="business">Business</option>
+              <option value="retail">Retail</option>
+            </select>
+          </label>
+          <label class="admin-field" id="companyField" style="display:none;">
+            <span>Company name</span>
+            <input type="text" id="newCompany">
+          </label>
+        </div>
+        <button type="submit" class="admin-save-btn">Create User</button>
+      </form>
+
+      <div class="admin-users-table-wrap">
+        <table class="admin-users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- USER DEACTIVATION MODAL BACKDROP -->
+  <div class="admin-modal-backdrop" id="modalBackdrop">
+    <div class="admin-modal">
+      <h2>Deactivate this user?</h2>
+      <p>They won't be able to log in until reactivated. This doesn't delete their history.</p>
+      <div class="admin-modal-actions">
+        <button class="admin-link-btn" id="cancelDeactivate">Cancel</button>
+        <button class="admin-save-btn admin-danger-btn" id="confirmDeactivate">Deactivate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: QUOTE OFFER & PROCEED PROMPT -->
+  <div id="quoteModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <button class="modal-close" id="btnCloseModal"><i data-lucide="x"></i></button>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #ff9800; padding-bottom:12px; margin-bottom:20px;">
+        <div>
+          <h2 style="font-size:22px; color:#0f172a; margin:0;">FREIGHT QUOTE OFFICIAL OFFER</h2>
+          <span style="font-size:12px; color:#64748b;">Issued by Global Logistics Platform</span>
+        </div>
+        <div style="text-align:right;">
+          <span id="modalQuoteId" style="font-size:18px; font-weight:800; color:#ff9800; display:block;">QT-2026-00934</span>
+          <span id="modalQuoteDate" style="font-size:12px; color:#64748b;">Date: 12 Aug 2026</span>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; background:#f8fafc; padding:14px; border-radius:10px; margin-bottom:20px;">
+        <div>
+          <span style="font-size:10px; color:#64748b; text-transform:uppercase; font-weight:800;">ORIGIN PORT</span>
+          <strong id="modalOrigin" style="display:block; font-size:15px; color:#0f172a;">INNSA (Mumbai)</strong>
+        </div>
+        <div style="text-align:center;">
+          <span id="modalModeBadge" style="background:#08162d; color:#fff; padding:4px 10px; border-radius:4px; font-size:12px; font-weight:700;">OCEAN FCL</span>
+          <span id="modalTransit" style="display:block; font-size:11px; color:#64748b; margin-top:2px;">Est. 6–10 Days</span>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:10px; color:#64748b; text-transform:uppercase; font-weight:800;">DESTINATION PORT</span>
+          <strong id="modalDest" style="display:block; font-size:15px; color:#0f172a;">AEJEA (Dubai)</strong>
+        </div>
+      </div>
+
+      <h4 style="font-size:14px; font-weight:800; color:#0f172a;">Itemized Rate Breakdown</h4>
+      <table class="modal-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th class="text-right">Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="modalTableBody"></tbody>
+        <tfoot>
+          <tr style="font-weight:bold; background:#f8fafc;">
+            <td style="font-size:16px; color:#0f172a;">TOTAL ESTIMATED QUOTE</td>
+            <td id="modalTotalVal" class="text-right" style="font-size:20px; color:#e65100;">₹ 3,84,500</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="modal-prompt-box">
+        <div class="modal-prompt-title">🚢 Would you like to proceed with this shipment booking?</div>
+        <p style="font-size:13px; color:#475569;">Lock in this rate now. Clicking proceed will save this quotation to your Quotations Dashboard.</p>
+        <div class="modal-prompt-actions">
+          <button class="btn-confirm-booking" id="btnConfirmShipment">
+            <i data-lucide="check-circle"></i> Yes, Proceed to Book Shipment
+          </button>
+          <button class="btn-secondary-light" id="btnExportPDFModal">
+            <i data-lucide="download"></i> Download PDF Only
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING CONFIRMATION MODAL -->
+  <div id="bookingSuccessModal" class="modal-overlay hidden">
+    <div class="modal-content text-center" style="max-width:550px; text-align:center;">
+      <div style="width:64px; height:64px; background:#dcfce7; color:#16a34a; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+        <i data-lucide="check" style="width:36px; height:36px;"></i>
+      </div>
+      <h2 style="font-size:24px; font-weight:800; color:#0f172a;">Shipment Proceeded & Saved!</h2>
+      <p style="color:#64748b; font-size:14px; margin:8px 0 20px;">Your quotation has been saved with status <strong>Booked / Proceeded</strong>.</p>
+      
+      <div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:12px; padding:16px; margin-bottom:20px;">
+        <span style="font-size:11px; color:#64748b; text-transform:uppercase; font-weight:800;">BOOKING REFERENCE NO.</span>
+        <h3 id="bookingRefNo" style="font-size:26px; color:#ff9800; font-weight:800; margin-top:2px;">BK-2026-8819</h3>
+      </div>
+
+      <button class="btn-orange-primary" style="width:100%; justify-content:center;" id="btnGoToDashboardSuccess">
+        Go to Quotations Dashboard &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    let quotationsDatabase = [
+      {
+        quoteNo: 'QT-2026-00934',
+        customerName: 'Sharma Textiles',
+        customerCity: 'Mumbai',
+        laneCode: 'INNSA → AEJEA',
+        laneSub: 'Mumbai → Dubai',
+        mode: 'ocean_fcl',
+        modeLabel: 'Ocean FCL',
+        basis: '2 × 40HC',
+        transit: '6–10 d',
+        totalFormatted: '₹ 3,84,500',
+        totalNum: 384500,
+        status: 'Draft',
+        created: '2 min ago'
+      },
+      {
+        quoteNo: 'QT-2026-00933',
+        customerName: 'Nordic Imports AB',
+        customerCity: 'Gothenburg',
+        laneCode: 'INNSA → NLRTM',
+        laneSub: 'Mumbai → Rotterdam',
+        mode: 'ocean_fcl',
+        modeLabel: 'Ocean FCL',
+        basis: '1 × 20GP',
+        transit: '24–28 d',
+        totalFormatted: '₹ 2,15,800',
+        totalNum: 215800,
+        status: 'Issued',
+        created: '1 hour ago'
+      },
+      {
+        quoteNo: 'QT-2026-00932',
+        customerName: 'Gulf Machinery LLC',
+        customerCity: 'Dubai',
+        laneCode: 'BOM → DXB',
+        laneSub: 'Mumbai → Dubai',
+        mode: 'air',
+        modeLabel: 'Air Freight',
+        basis: '250 kg ch.',
+        transit: '5–7 d',
+        totalFormatted: '₹ 64,300',
+        totalNum: 64300,
+        status: 'Issued',
+        created: '3 hours ago'
+      },
+      {
+        quoteNo: 'QT-2026-00931',
+        customerName: 'Sharma Textiles',
+        customerCity: 'Mumbai',
+        laneCode: 'INNSA → SGSIN',
+        laneSub: 'Mumbai → Singapore',
+        mode: 'ocean_lcl',
+        modeLabel: 'Ocean LCL',
+        basis: '4.2 R/T',
+        transit: '11–16 d',
+        totalFormatted: '₹ 88,400',
+        totalNum: 88400,
+        status: 'Draft',
+        created: 'Yesterday'
+      },
+      {
+        quoteNo: 'QT-2026-00930',
+        customerName: 'Andes Trading',
+        customerCity: 'Callao',
+        laneCode: 'INNSA → PECLL',
+        laneSub: 'Mumbai → Callao',
+        mode: 'ocean_fcl',
+        modeLabel: 'Ocean FCL',
+        basis: '—',
+        transit: '—',
+        totalFormatted: 'Not serviced',
+        totalNum: 0,
+        status: 'No routing',
+        created: 'Yesterday'
+      }
+    ];
+
+    const PORTS_MASTER = [
+      { id: 'INNSA', code: 'INNSA', name: 'Nhava Sheva, Mumbai', country: 'India', lat: 18.95, lng: 72.95 },
+      { id: 'AEJEA', code: 'AEJEA', name: 'Jebel Ali, Dubai', country: 'UAE', lat: 24.98, lng: 55.02 },
+      { id: 'SGSIN', code: 'SGSIN', name: 'Port of Singapore', country: 'Singapore', lat: 1.35, lng: 103.81 },
+      { id: 'NLRTM', code: 'NLRTM', name: 'Port of Rotterdam', country: 'Netherlands', lat: 51.92, lng: 4.47 },
+      { id: 'CNSHA', code: 'CNSHA', name: 'Port of Shanghai', country: 'China', lat: 31.23, lng: 121.47 },
+      { id: 'DEL', code: 'DEL', name: 'Delhi Indira Gandhi Airport', country: 'India', lat: 28.55, lng: 77.10 }
+    ];
+
+    let itemsList = [
+      { id: 1, type: 'Container', containerType: '40HC', count: 2, weight: 18400, desc: 'Cotton textile rolls, unbleached', hs: '5208.11' }
+    ];
+
+    let sideChartInstance = null;
+    let sideMapInstance = null;
+    let sideOriginMarker = null;
+    let sideDestMarker = null;
+    let sideRoutePolyline = null;
+    let currentQuoteCalculated = null;
+
+    /* User Management Admin Data & Logic */
+    const ROLE_LABELS = { admin: "Admin", business: "Business", retail: "Retail" };
+    const CURRENT_USER_ID = "u1";
+
+    let users = [
+      { id: "u1", full_name: "Priya Nair", email: "priya@freightai.com", role: "admin", is_active: true, created_at: "2025-11-02" },
+      { id: "u2", full_name: "Rahul Mehta", email: "rahul.mehta@acmelogistics.com", role: "business", is_active: true, created_at: "2025-12-14" },
+      { id: "u3", full_name: "Sana Iqbal", email: "sana.iqbal@gmail.com", role: "retail", is_active: true, created_at: "2026-01-05" },
+      { id: "u4", full_name: "Dev Kulkarni", email: "dev@freightai.com", role: "admin", is_active: true, created_at: "2026-02-19" },
+      { id: "u5", full_name: "Ops Bot", email: "ops.legacy@freightai.com", role: "admin", is_active: false, created_at: "2025-09-30" },
+      { id: "u6", full_name: "Meera Shah", email: "meera.shah@bluewaveshipping.com", role: "business", is_active: true, created_at: "2026-03-11" },
+      { id: "u7", full_name: "Arjun Verma", email: "arjun.v@yahoo.com", role: "retail", is_active: false, created_at: "2026-04-22" },
+    ];
+
+    let editingId = null;
+    let pendingDeactivateId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+      initDropdowns();
+      renderItems();
+      initSideChart();
+      initSideMap();
+      bindEvents();
+      renderDashboardTable();
+      renderUserMgmt();
+      recalculate();
+    });
+
+    function initDropdowns() {
+      const oSel = document.getElementById('originSelect');
+      const dSel = document.getElementById('destSelect');
+      let html = '';
+      PORTS_MASTER.forEach(p => {
+        html += `<option value="${p.id}">${p.code} — ${p.name}, ${p.country}</option>`;
+      });
+      oSel.innerHTML = html;
+      dSel.innerHTML = html;
+      oSel.value = 'INNSA';
+      dSel.value = 'AEJEA';
+    }
+
+    function switchView(target) {
+      const dashView = document.getElementById('dashboardView');
+      const enqView = document.getElementById('enquiryView');
+      const userMgmtView = document.getElementById('userMgmtView');
+      
+      const dashBtn = document.getElementById('tabDashBtn');
+      const enqBtn = document.getElementById('tabNewEnquiryBtn');
+      const userMgmtBtn = document.getElementById('tabUserMgmtBtn');
+
+      // Reset tabs
+      [dashBtn, enqBtn, userMgmtBtn].forEach(b => b.classList.remove('active'));
+      [dashView, enqView, userMgmtView].forEach(v => v.classList.add('hidden'));
+
+      if (target === 'enquiry') {
+        enqView.classList.remove('hidden');
+        enqBtn.classList.add('active');
+        setTimeout(() => { if (sideMapInstance) sideMapInstance.invalidateSize(); }, 200);
+      } else if (target === 'usermgmt') {
+        userMgmtView.classList.remove('hidden');
+        userMgmtBtn.classList.add('active');
+        renderUserMgmt();
+      } else {
+        dashView.classList.remove('hidden');
+        dashBtn.classList.add('active');
+        renderDashboardTable();
+      }
+    }
+
+    function renderDashboardTable() {
+      const tbody = document.getElementById('dashTableBody');
+      const search = (document.getElementById('dashSearchInput').value || '').toLowerCase();
+      const laneF = document.getElementById('filterLane').value;
+      const modeF = document.getElementById('filterMode').value;
+      const statusF = document.getElementById('filterStatus').value;
+
+      let filtered = quotationsDatabase.filter(q => {
+        const matchesSearch = !search || 
+          q.quoteNo.toLowerCase().includes(search) || 
+          q.customerName.toLowerCase().includes(search) || 
+          q.laneCode.toLowerCase().includes(search);
+        
+        const matchesLane = laneF === 'all' || q.laneCode.includes(laneF);
+        const matchesMode = modeF === 'all' || q.mode === modeF;
+        const matchesStatus = statusF === 'all' || q.status === statusF;
+
+        return matchesSearch && matchesLane && matchesMode && matchesStatus;
+      });
+
+      document.getElementById('dashResultsCount').innerText = `${filtered.length} results`;
+      document.getElementById('dashPaginationInfo').innerText = `Showing 1–${filtered.length} of ${quotationsDatabase.length}`;
+      document.getElementById('kpiQuotesCount').innerText = quotationsDatabase.length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:30px; color:#94a3b8;">No matching quotations found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(q => {
+        let modeClass = 'ocean-fcl';
+        if (q.mode === 'air') modeClass = 'air-freight';
+        if (q.mode === 'ocean_lcl') modeClass = 'ocean-lcl';
+
+        let statusClass = 'draft';
+        if (q.status === 'Issued') statusClass = 'issued';
+        if (q.status === 'Booked') statusClass = 'booked';
+        if (q.status === 'No routing') statusClass = 'norouting';
+
+        return `
+          <tr>
+            <td class="q-no">${q.quoteNo}</td>
+            <td>
+              <span class="q-cust-name">${q.customerName}</span>
+              <span class="q-cust-city">${q.customerCity}</span>
+            </td>
+            <td>
+              <span class="lane-code">${q.laneCode}</span>
+              <span class="lane-sub">${q.laneSub}</span>
+            </td>
+            <td><span class="mode-badge ${modeClass}">${q.modeLabel}</span></td>
+            <td style="font-weight:600;">${q.basis}</td>
+            <td style="color:#64748b;">${q.transit}</td>
+            <td style="font-weight:800;">${q.totalFormatted}</td>
+            <td><span class="status-badge ${statusClass}">${q.status}</span></td>
+            <td style="color:#64748b; font-size:12px;">${q.created}</td>
+            <td>
+              <button class="btn-open-quote" onclick="openQuoteDetail('${q.quoteNo}')">Open</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    /* USER MANAGEMENT RENDER LOGIC */
+    function showAdminSuccess(msg) {
+      const s = document.getElementById("successMsg");
+      const e = document.getElementById("errorMsg");
+      s.textContent = msg;
+      s.style.display = "block";
+      e.style.display = "none";
+    }
+
+    function showAdminError(msg) {
+      const s = document.getElementById("successMsg");
+      const e = document.getElementById("errorMsg");
+      e.textContent = msg;
+      e.style.display = "block";
+      s.style.display = "none";
+    }
+
+    function clearAdminBanners() {
+      document.getElementById("successMsg").style.display = "none";
+      document.getElementById("errorMsg").style.display = "none";
+    }
+
+    function formatAdminDate(iso) {
+      return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    }
+
+    function getFilteredUsers() {
+      const search = document.getElementById("searchInput").value.trim().toLowerCase();
+      const role = document.getElementById("roleFilter").value;
+      const statusFilter = document.getElementById("statusFilter").value;
+
+      return users.filter((u) => {
+        if (role && u.role !== role) return false;
+        if (statusFilter === "active" && !u.is_active) return false;
+        if (statusFilter === "inactive" && u.is_active) return false;
+        if (search && !u.full_name.toLowerCase().includes(search) && !u.email.toLowerCase().includes(search)) return false;
+        return true;
+      });
+    }
+
+    function renderUserMgmt() {
+      const tableBody = document.getElementById("usersTableBody");
+      if (!tableBody) return;
+
+      const filtered = getFilteredUsers();
+      tableBody.innerHTML = "";
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="admin-muted admin-empty-row">No users match these filters.</td></tr>';
+        return;
+      }
+
+      filtered.forEach((u) => {
+        const isSelf = u.id === CURRENT_USER_ID;
+        const tr = document.createElement("tr");
+        tr.className = u.is_active ? "" : "admin-row-inactive";
+
+        const roleCell = editingId === u.id
+          ? `<select class="admin-role-select" data-role-select="${u.id}">
+               ${Object.keys(ROLE_LABELS).map(r => `<option value="${r}" ${r === u.role ? "selected" : ""}>${ROLE_LABELS[r]}</option>`).join("")}
+             </select>`
+          : `<span class="admin-role-badge admin-role-${u.role}">${ROLE_LABELS[u.role]}</span>`;
+
+        const actionsCell = editingId === u.id
+          ? `<button class="admin-link-btn" data-save="${u.id}">Save</button>
+             <button class="admin-link-btn" data-cancel-edit="${u.id}">Cancel</button>`
+          : `<button class="admin-link-btn" data-edit="${u.id}" ${isSelf ? "disabled title=\"You can't change your own role\"" : ""}>Edit role</button>
+             <button class="admin-link-btn ${u.is_active ? "admin-link-danger" : ""}" data-toggle="${u.id}" ${isSelf ? "disabled title=\"You can't deactivate your own account\"" : ""}>
+               ${u.is_active ? "Deactivate" : "Reactivate"}
+             </button>`;
+
+        tr.innerHTML = `
+          <td>${u.full_name}${isSelf ? '<span class="admin-you-tag"> (you)</span>' : ""}</td>
+          <td>${u.email}</td>
+          <td>${roleCell}</td>
+          <td><span class="admin-status-badge ${u.is_active ? "admin-status-active" : "admin-status-inactive"}">${u.is_active ? "Active" : "Inactive"}</span></td>
+          <td class="admin-muted">${formatAdminDate(u.created_at)}</td>
+          <td class="admin-row-actions">${actionsCell}</td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      tableBody.querySelectorAll("[data-edit]").forEach(btn => {
+        btn.addEventListener("click", () => { editingId = btn.dataset.edit; clearAdminBanners(); renderUserMgmt(); });
+      });
+      tableBody.querySelectorAll("[data-cancel-edit]").forEach(btn => {
+        btn.addEventListener("click", () => { editingId = null; renderUserMgmt(); });
+      });
+      tableBody.querySelectorAll("[data-save]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.save;
+          const select = tableBody.querySelector(`[data-role-select="${id}"]`);
+          const user = users.find(u => u.id === id);
+          user.role = select.value;
+          editingId = null;
+          showAdminSuccess(`${user.full_name}'s role was updated to ${ROLE_LABELS[user.role]}.`);
+          renderUserMgmt();
+        });
+      });
+      tableBody.querySelectorAll("[data-toggle]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.toggle;
+          const user = users.find(u => u.id === id);
+          clearAdminBanners();
+          if (user.is_active) {
+            pendingDeactivateId = id;
+            document.getElementById("modalBackdrop").classList.add("open");
+          } else {
+            user.is_active = true;
+            showAdminSuccess(`${user.full_name} was reactivated.`);
+            renderUserMgmt();
+          }
+        });
+      });
+    }
+
+    function renderItems() {
+      const container = document.getElementById('cargoItemsContainer');
+      container.innerHTML = itemsList.map((item, idx) => `
+        <div class="item-box">
+          <div class="item-box-header">
+            <span class="item-tag">ITEM #${String(idx + 1).padStart(2, '0')}</span>
+            ${itemsList.length > 1 ? `<button type="button" class="btn-remove" onclick="removeItem(${idx})"><i data-lucide="trash-2" style="width:14px;"></i> Remove</button>` : ''}
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Package type <span class="req">*</span></label>
+              <select class="form-select" onchange="updateItem(${idx}, 'type', this.value)">
+                <option value="Container" ${item.type==='Container'?'selected':''}>Container</option>
+                <option value="Pallet" ${item.type==='Pallet'?'selected':''}>Pallet</option>
+                <option value="Box" ${item.type==='Box'?'selected':''}>Box</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Container type <span class="req">*</span> <span class="badge-new">NEW</span></label>
+              <select class="form-select" onchange="updateItem(${idx}, 'containerType', this.value)">
+                <option value="40HC" ${item.containerType==='40HC'?'selected':''}>40HC — 40ft High Cube</option>
+                <option value="20FT" ${item.containerType==='20FT'?'selected':''}>20FT — 20ft Standard</option>
+                <option value="40FT" ${item.containerType==='40FT'?'selected':''}>40FT — 40ft Standard</option>
+                <option value="45HC" ${item.containerType==='45HC'?'selected':''}>45HC — 45ft Reefer</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="alert-banner" style="margin-bottom:12px; padding:10px 14px;">
+            <div style="font-size:10px; font-weight:800; color:#c2410c;">CONTAINER SELECTED → FCL FIELDS (no dimensions — FCL is priced per box)</div>
+            <div class="form-row" style="margin-bottom:0; margin-top:8px;">
+              <div class="form-group">
+                <label>Container count <span class="req">*</span></label>
+                <input type="number" class="form-input" value="${item.count}" min="1" oninput="updateItem(${idx}, 'count', this.value)" />
+              </div>
+              <div class="form-group">
+                <label>Total gross weight (kg) <span class="req">*</span></label>
+                <input type="number" class="form-input" value="${item.weight}" oninput="updateItem(${idx}, 'weight', this.value)" />
+                <span class="subtext">Limit for ${item.containerType} ≈ 28,800 kg</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-bottom:0;">
+            <div class="form-group flex-1">
+              <label>Commodity description <span class="req">*</span> <span class="badge-new">NEW</span></label>
+              <input type="text" class="form-input" value="${item.desc}" oninput="updateItem(${idx}, 'desc', this.value)" />
+              <span class="subtext">"General cargo" is rejected — customs needs specifics</span>
+            </div>
+            <div class="form-group flex-1">
+              <label>HS code (suggested) <span class="badge-new">NEW</span></label>
+              <input type="text" class="form-input" value="${item.hs}" oninput="updateItem(${idx}, 'hs', this.value)" />
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function removeItem(idx) {
+      itemsList.splice(idx, 1);
+      renderItems();
+      recalculate();
+    }
+
+    function updateItem(idx, key, val) {
+      itemsList[idx][key] = val;
+      recalculate();
+    }
+
+    function initSideChart() {
+      const ctx = document.getElementById('sideCostChart');
+      if (!ctx) return;
+      sideChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Base Freight Rate', 'Surcharges & Fees'],
+          datasets: [{
+            data: [75, 25],
+            backgroundColor: ['#0f172a', '#ff9800'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 11, family: 'Inter' }, boxWidth: 14 }
+            }
+          }
+        }
+      });
+    }
+
+    function updateSideChart(base, surcharges) {
+      if (!sideChartInstance) return;
+      sideChartInstance.data.datasets[0].data = [base, surcharges];
+      sideChartInstance.update();
+    }
+
+    function initSideMap() {
+      const mapEl = document.getElementById('sideRouteMap');
+      if (!mapEl) return;
+      sideMapInstance = L.map('sideRouteMap', { attributionControl: false, zoomControl: true }).setView([20, 50], 2);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(sideMapInstance);
+    }
+
+    function updateSideMap(o, d) {
+      if (!sideMapInstance) return;
+      if (sideOriginMarker) sideMapInstance.removeLayer(sideOriginMarker);
+      if (sideDestMarker) sideMapInstance.removeLayer(sideDestMarker);
+      if (sideRoutePolyline) sideMapInstance.removeLayer(sideRoutePolyline);
+
+      sideOriginMarker = L.marker([o.lat, o.lng]).addTo(sideMapInstance).bindPopup(o.name);
+      sideDestMarker = L.marker([d.lat, d.lng]).addTo(sideMapInstance).bindPopup(d.name);
+
+      sideRoutePolyline = L.polyline([[o.lat, o.lng], [(o.lat+d.lat)/2 + 4, (o.lng+d.lng)/2], [d.lat, d.lng]], {
+        color: '#ff9800',
+        weight: 3,
+        dashArray: '6, 6'
+      }).addTo(sideMapInstance);
+
+      sideMapInstance.fitBounds(L.latLngBounds([[o.lat, o.lng], [d.lat, d.lng]]), { padding: [30, 30] });
+    }
+
+    function bindEvents() {
+      // Navbar tabs
+      document.getElementById('tabDashBtn').addEventListener('click', () => switchView('dashboard'));
+      document.getElementById('tabNewEnquiryBtn').addEventListener('click', () => switchView('enquiry'));
+      document.getElementById('tabUserMgmtBtn').addEventListener('click', () => switchView('usermgmt'));
+      document.getElementById('btnGoToEnquiry').addEventListener('click', () => switchView('enquiry'));
+      document.getElementById('adminBackToDash').addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
+
+      // Admin User Management Filters
+      document.getElementById("searchBtn").addEventListener("click", (e) => { e.preventDefault(); renderUserMgmt(); });
+      document.getElementById("searchInput").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); renderUserMgmt(); } });
+      document.getElementById("roleFilter").addEventListener("change", renderUserMgmt);
+      document.getElementById("statusFilter").addEventListener("change", renderUserMgmt);
+
+      const createForm = document.getElementById("createForm");
+      const toggleCreateBtn = document.getElementById("toggleCreateBtn");
+      toggleCreateBtn.addEventListener("click", () => {
+        const open = createForm.classList.toggle("open");
+        toggleCreateBtn.textContent = open ? "Cancel" : "+ Add User";
+      });
+
+      document.getElementById("newRole").addEventListener("change", (e) => {
+        document.getElementById("companyField").style.display = e.target.value === "business" ? "flex" : "none";
+      });
+
+      createForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById("newFullName").value.trim();
+        const email = document.getElementById("newEmail").value.trim();
+        const role = document.getElementById("newRole").value;
+
+        if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+          showAdminError("Email is already registered");
+          return;
+        }
+
+        const newUser = {
+          id: "u" + (users.length + 1) + "_" + Date.now(),
+          full_name: fullName,
+          email,
+          role,
+          is_active: true,
+          created_at: new Date().toISOString(),
+        };
+        users.unshift(newUser);
+        showAdminSuccess(`${fullName} was added as ${ROLE_LABELS[role]}.`);
+        createForm.reset();
+        document.getElementById("companyField").style.display = "none";
+        createForm.classList.remove("open");
+        toggleCreateBtn.textContent = "+ Add User";
+        renderUserMgmt();
+      });
+
+      document.getElementById("cancelDeactivate").addEventListener("click", () => {
+        pendingDeactivateId = null;
+        document.getElementById("modalBackdrop").classList.remove("open");
+      });
+
+      document.getElementById("confirmDeactivate").addEventListener("click", () => {
+        const user = users.find(u => u.id === pendingDeactivateId);
+        if (user) {
+          user.is_active = false;
+          showAdminSuccess(`${user.full_name} was deactivated.`);
+        }
+        pendingDeactivateId = null;
+        document.getElementById("modalBackdrop").classList.remove("open");
+        renderUserMgmt();
+      });
+
+      document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+        if (e.target.id === "modalBackdrop") {
+          pendingDeactivateId = null;
+          document.getElementById("modalBackdrop").classList.remove("open");
+        }
+      });
+
+      // Dashboard filters
+      ['dashSearchInput', 'filterLane', 'filterMode', 'filterStatus'].forEach(id => {
+        document.getElementById(id).addEventListener('input', renderDashboardTable);
+        document.getElementById(id).addEventListener('change', renderDashboardTable);
+      });
+
+      document.getElementById('btnClearFilters').addEventListener('click', () => {
+        document.getElementById('dashSearchInput').value = '';
+        document.getElementById('filterLane').value = 'all';
+        document.getElementById('filterMode').value = 'all';
+        document.getElementById('filterStatus').value = 'all';
+        renderDashboardTable();
+      });
+
+      // ----------------------------------------------------------------------
+      // CHANGE 1: READY DATE VALIDATION (Frontend + Backend Sync)
+      // ----------------------------------------------------------------------
+      const readyDateInput = document.getElementById('readyDate');
+      const readyDateErrBox = document.getElementById('readyDateError');
+      const todayObj = new Date();
+      const todayYMD = todayObj.toISOString().split('T')[0];
+
+      if (readyDateInput) {
+        readyDateInput.min = todayYMD;
+        readyDateInput.value = todayYMD;
+
+        function validateReadyDate() {
+          const val = readyDateInput.value;
+          if (!val) {
+            readyDateErrBox.innerText = "Ready Date is required.";
+            readyDateErrBox.classList.remove('hidden');
+            readyDateInput.style.borderColor = '#ef4444';
+            return false;
+          }
+          if (val < todayYMD) {
+            readyDateErrBox.innerText = `Ready Date cannot be in the past (${val}). Please select today (${todayYMD}) or a future date.`;
+            readyDateErrBox.classList.remove('hidden');
+            readyDateInput.style.borderColor = '#ef4444';
+            return false;
+          }
+          readyDateErrBox.classList.add('hidden');
+          readyDateInput.style.borderColor = '';
+          return true;
+        }
+
+        readyDateInput.addEventListener('change', validateReadyDate);
+        readyDateInput.addEventListener('input', validateReadyDate);
+      }
+
+      document.getElementById('btnAddItem').addEventListener('click', () => {
+        itemsList.push({ id: Date.now(), type: 'Container', containerType: '40HC', count: 1, weight: 9200, desc: 'Machinery parts', hs: '8431.49' });
+        renderItems();
+        recalculateSummary();
+      });
+
+      document.querySelectorAll('.mode-pill').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.mode-pill').forEach(b => b.classList.remove('active'));
+          e.currentTarget.classList.add('active');
+          recalculateSummary();
+        });
+      });
+
+      ['originSelect', 'destSelect', 'chkHazardous', 'chkInsurance', 'loadTypeSelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', recalculateSummary);
+      });
+
+      document.getElementById('chkHazardous').addEventListener('change', (e) => {
+        const box = document.getElementById('hazmatAlertBox');
+        if (e.target.checked) box.classList.remove('hidden');
+        else box.classList.add('hidden');
+      });
+
+      // ----------------------------------------------------------------------
+      // CHANGE 2: QUOTE GENERATION AGENT WORKFLOW
+      // ----------------------------------------------------------------------
+      const btnGenerate = document.getElementById('btnGenerateQuote');
+      const agentProcessBox = document.getElementById('agentProcessingBox');
+      const agentErrBox = document.getElementById('agentErrorBox');
+      const agentErrMsg = document.getElementById('agentErrorMessage');
+      const agentStatusTxt = document.getElementById('agentStatusText');
+      const agentStepTxt = document.getElementById('agentStepDetail');
+
+      btnGenerate.addEventListener('click', async () => {
+        // 1. Validate Ready Date
+        if (!validateReadyDate()) {
+          agentErrMsg.innerText = "Validation Error: Ready Date cannot be in the past. Please update the date before submitting.";
+          agentErrBox.classList.remove('hidden');
+          return;
+        }
+
+        // 2. Validate Contact Fields
+        const custName = document.getElementById('custName').value.trim();
+        const custEmail = document.getElementById('custEmail').value.trim();
+        if (!custName || !custEmail) {
+          agentErrMsg.innerText = "Validation Error: Contact name and email are required.";
+          agentErrBox.classList.remove('hidden');
+          return;
+        }
+
+        // 3. Clear errors and show Agent Processing Loading State
+        agentErrBox.classList.add('hidden');
+        agentProcessBox.classList.remove('hidden');
+        btnGenerate.disabled = true;
+        btnGenerate.style.opacity = '0.6';
+        btnGenerate.style.cursor = 'not-allowed';
+
+        // Update Timeline to Stage 1: SUBMITTED & Stage 2: WITH_FRIGID_AGENT
+        document.getElementById('stgSubmitted').style.color = '#ff9800';
+        document.getElementById('stgWithAgent').style.color = '#ff9800';
+        document.getElementById('stgGenerated').style.color = '#64748b';
+
+        agentStatusTxt.innerText = "Waiting for Frigid Agent decision...";
+        agentStepTxt.innerText = "Quote request submitted — Frigid Agent is evaluating base costs & applying margin...";
+
+        // Collect Form Payload
+        const oPortId = document.getElementById('originSelect').value;
+        const dPortId = document.getElementById('destSelect').value;
+        const oPort = PORTS_MASTER.find(p => p.id === oPortId) || PORTS_MASTER[0];
+        const dPort = PORTS_MASTER.find(p => p.id === dPortId) || PORTS_MASTER[1];
+        const selectedMode = document.querySelector('.mode-pill.active')?.dataset?.mode || 'ocean';
+
+        const frigidMarginPct = parseFloat(document.getElementById('frigidMarginInput').value) || 12.0;
+
+        const quotePayload = {
+          origin: oPort,
+          destination: dPort,
+          readyDate: readyDateInput.value,
+          deliveryDate: document.getElementById('deliveryDate').value,
+          mode: selectedMode,
+          loadType: document.getElementById('loadTypeSelect').value,
+          incoterm: document.getElementById('incotermSelect').value,
+          items: itemsList,
+          declaredVal: document.getElementById('declaredVal').value,
+          currency: document.getElementById('currencySelect').value,
+          chkHazardous: document.getElementById('chkHazardous').checked,
+          chkInsurance: document.getElementById('chkInsurance').checked,
+          unNumber: document.getElementById('unNumber').value,
+          imoClass: document.getElementById('imoClass').value,
+          custName: custName,
+          custCompany: document.getElementById('custCompany').value,
+          custEmail: custEmail,
+          custCountry: document.getElementById('custCountry').value,
+          marginPct: frigidMarginPct
+        };
+
+        try {
+          let agentResult = null;
+
+          // Attempt Backend API request
+          try {
+            const resp = await fetch('/api/generate-quote', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(quotePayload)
+            });
+            const data = await resp.json();
+            if (resp.ok && data.success) {
+              agentResult = data;
+            } else {
+              throw new Error(data.error || "Backend Frigid Agent error");
+            }
+          } catch (netErr) {
+            console.log("Using client-side Frigid Agent fallback:", netErr.message);
+            await new Promise(r => setTimeout(r, 800));
+
+            if (quotePayload.readyDate < todayYMD) {
+              throw new Error(`Validation Error: Ready Date (${quotePayload.readyDate}) cannot be in the past.`);
+            }
+
+            let totalContainers = 0;
+            let containerSummaryStr = "";
+            itemsList.forEach(item => {
+              totalContainers += parseInt(item.count) || 1;
+              containerSummaryStr += `${item.count} × ${item.containerType} `;
+            });
+
+            const rawBaseFreight = totalContainers * 145000;
+            const thcCost = totalContainers * 18000;
+            const customsCost = 15000;
+            const bafCost = Math.round(rawBaseFreight * 0.12);
+            const isHazmat = quotePayload.chkHazardous;
+            const hazmatCost = isHazmat ? 25000 : 0;
+            const isInsurance = quotePayload.chkInsurance;
+            const declaredVal = parseFloat(quotePayload.declaredVal) || 0;
+            const insuranceCost = isInsurance ? Math.max(Math.round(declaredVal * 0.0035), 7000) : 0;
+            
+            const subtotalBaseCost = rawBaseFreight + thcCost + customsCost + bafCost + hazmatCost + insuranceCost;
+            const marginVal = Math.round(subtotalBaseCost * (frigidMarginPct / 100.0));
+            const grandTotal = subtotalBaseCost + marginVal;
+
+            const lineItems = [
+              { name: `Base Freight (${containerSummaryStr.trim()})`, amount: rawBaseFreight + marginVal, formatted: `₹ ${(rawBaseFreight + marginVal).toLocaleString('en-IN')}` },
+              { name: `Terminal Handling Charges (THC)`, amount: thcCost, formatted: `₹ ${thcCost.toLocaleString('en-IN')}` },
+              { name: `Export & Import Customs Filing`, amount: customsCost, formatted: `₹ ${customsCost.toLocaleString('en-IN')}` },
+              { name: `Bunker Fuel Adjustment (BAF 12%)`, amount: bafCost, formatted: `₹ ${bafCost.toLocaleString('en-IN')}` }
+            ];
+            if (isHazmat) lineItems.push({ name: `Hazardous Material (HAZMAT) Fee`, amount: hazmatCost, formatted: `₹ ${hazmatCost.toLocaleString('en-IN')}` });
+            if (isInsurance) lineItems.push({ name: `All-Risk Cargo Insurance`, amount: insuranceCost, formatted: `₹ ${insuranceCost.toLocaleString('en-IN')}` });
+
+            agentResult = {
+              success: true,
+              status: "QUOTE_GENERATED",
+              quoteId: 'QT-2026-00' + Math.floor(935 + Math.random()*50),
+              readyDate: quotePayload.readyDate,
+              oPort, dPort,
+              basis: containerSummaryStr.trim() || '1 × 40HC',
+              baseEstimatedCost: subtotalBaseCost,
+              appliedMarginPct: frigidMarginPct,
+              marginAmount: marginVal,
+              grandTotal,
+              formattedPrice: `₹ ${grandTotal.toLocaleString('en-IN')}`,
+              lineItems: lineItems
+            };
+          }
+
+          // Complete processing
+          agentProcessBox.classList.add('hidden');
+          btnGenerate.disabled = false;
+          btnGenerate.style.opacity = '1';
+          btnGenerate.style.cursor = 'pointer';
+
+          // Update Status Timeline to Stage 3: QUOTE_GENERATED
+          document.getElementById('stgSubmitted').style.color = '#10b981';
+          document.getElementById('stgWithAgent').style.color = '#10b981';
+          document.getElementById('stgGenerated').style.color = '#10b981';
+
+          currentQuoteCalculated = agentResult;
+
+          // Update UI with Frigid Agent Final Quote
+          document.getElementById('liveTotalPrice').innerText = agentResult.formattedPrice;
+          document.getElementById('rateBadge').innerText = "🤖 FRIGID AGENT EVALUATED — FINAL QUOTE";
+
+          // Update Frigid Agent Decision Widget
+          document.getElementById('frigidBaseCostText').innerText = `₹ ${agentResult.baseEstimatedCost.toLocaleString('en-IN')}`;
+          document.getElementById('frigidMarginValText').innerText = `₹ ${agentResult.marginAmount.toLocaleString('en-IN')} (${agentResult.appliedMarginPct}%)`;
+          document.getElementById('frigidFinalValText').innerText = agentResult.formattedPrice;
+
+          // Populate Retailer Quote Offer Modal
+          document.getElementById('modalQuoteId').innerText = agentResult.quoteId;
+          document.getElementById('modalQuoteDate').innerText = `Ready Date: ${agentResult.readyDate}`;
+          document.getElementById('modalOrigin').innerText = `${oPort.code} (${oPort.name.split(',')[0]})`;
+          document.getElementById('modalDest').innerText = `${dPort.code} (${dPort.name.split(',')[0]})`;
+
+          const modalBody = document.getElementById('modalTableBody');
+          modalBody.innerHTML = agentResult.lineItems.map(item => `
+            <tr>
+              <td>${item.name}</td>
+              <td class="text-right">${item.formatted}</td>
+            </tr>
+          `).join('');
+
+          document.getElementById('modalTotalVal').innerText = agentResult.formattedPrice;
+
+          // Update Side Widgets
+          updateSideChart(agentResult.baseEstimatedCost, agentResult.marginAmount);
+          updateSideMap(oPort, dPort);
+
+          // Display final generated quote modal to retailer
+          document.getElementById('quoteModal').classList.remove('hidden');
+
+        } catch (err) {
+          // Failure handling: reset loading state, show error, preserve form inputs
+          agentProcessBox.classList.add('hidden');
+          btnGenerate.disabled = false;
+          btnGenerate.style.opacity = '1';
+          btnGenerate.style.cursor = 'pointer';
+
+          agentErrMsg.innerText = err.message || "Frigid Agent evaluation failed. Please retry.";
+          agentErrBox.classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('btnCloseModal').addEventListener('click', () => {
+        document.getElementById('quoteModal').classList.add('hidden');
+      });
+
+      // CONFIRM BOOKING & SAVE TO DASHBOARD
+      document.getElementById('btnConfirmShipment').addEventListener('click', () => {
+        document.getElementById('quoteModal').classList.add('hidden');
+        
+        if (currentQuoteCalculated) {
+          const newQuoteEntry = {
+            quoteNo: currentQuoteCalculated.quoteId || currentQuoteCalculated.id,
+            customerName: document.getElementById('custName').value || 'Sharma Textiles',
+            customerCity: document.getElementById('custCompany').value || 'Mumbai',
+            laneCode: `${currentQuoteCalculated.oPort.id} → ${currentQuoteCalculated.dPort.id}`,
+            laneSub: `${currentQuoteCalculated.oPort.name.split(',')[0]} → ${currentQuoteCalculated.dPort.name.split(',')[0]}`,
+            mode: 'ocean_fcl',
+            modeLabel: 'Ocean FCL',
+            basis: currentQuoteCalculated.basis,
+            transit: '6–10 d',
+            totalFormatted: currentQuoteCalculated.formattedPrice,
+            totalNum: currentQuoteCalculated.grandTotal,
+            status: 'Booked',
+            created: 'Just now'
+          };
+          quotationsDatabase.unshift(newQuoteEntry);
+        }
+
+        document.getElementById('bookingSuccessModal').classList.remove('hidden');
+      });
+
+      document.getElementById('btnGoToDashboardSuccess').addEventListener('click', () => {
+        document.getElementById('bookingSuccessModal').classList.add('hidden');
+        switchView('dashboard');
+      });
+
+      document.getElementById('btnExportPDFSide').addEventListener('click', () => {
+        alert("Downloading PDF Quote in Indian Rupees (₹)...");
+      });
+
+      document.getElementById('btnExportPDFModal').addEventListener('click', () => {
+        alert("Downloading PDF Quote in Indian Rupees (₹)...");
+      });
+    }
+
+    function recalculateSummary() {
+      let totalContainers = 0;
+      let totalWeight = 0;
+      let containerSummaryStr = "";
+
+      itemsList.forEach(item => {
+        totalContainers += parseInt(item.count) || 1;
+        totalWeight += parseFloat(item.weight) || 0;
+        containerSummaryStr += `${item.count} × ${item.containerType} `;
+      });
+
+      const oPortId = document.getElementById('originSelect').value;
+      const dPortId = document.getElementById('destSelect').value;
+
+      const oPort = PORTS_MASTER.find(p => p.id === oPortId) || PORTS_MASTER[0];
+      const dPort = PORTS_MASTER.find(p => p.id === dPortId) || PORTS_MASTER[1];
+
+      document.getElementById('summaryContainers').innerText = containerSummaryStr.trim() || '1 × 40HC';
+      document.getElementById('summaryWeight').innerText = `${totalWeight.toLocaleString('en-IN')} kg`;
+
+      updateSideMap(oPort, dPort);
+    }
+
+    function openQuoteDetail(quoteNo) {
+      const q = quotationsDatabase.find(item => item.quoteNo === quoteNo);
+      if (q) {
+        alert(`Opening quotation record for ${q.quoteNo}\nCustomer: ${q.customerName}\nLane: ${q.laneCode}\nIndicative Total: ${q.totalFormatted}\nStatus: ${q.status}`);
+      }
+    }
+  </script>
+</body>
+</html>

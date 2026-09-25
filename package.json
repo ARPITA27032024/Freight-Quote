@@ -1,0 +1,14 @@
+{
+  "name": "freight-quote-system",
+  "version": "1.0.0",
+  "description": "Freight Quote Generation System with Dedicated Quote Generation Agent",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}
